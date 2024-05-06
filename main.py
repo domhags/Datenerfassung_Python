@@ -1,50 +1,44 @@
 def ausgabe_daten():
     # Abfrage zur Ausgabe der Daten
-    print("Möchten Sie die Daten ausgeben lassen?\nj für Ja, n für Nein")
-    auswahl = input()
-    if auswahl == "j":
-        # Ausgabe aller gespeicherten Datensätze zum Testen, ob die Werte gespeichert wurden
-        for person in gespeicherteDaten:
-            print(person, sep="\n")
-    else:
-        print("Das Programm wird beendet!")
+    while True:
+        auswahl = input("Möchten Sie die Daten ausgeben lassen?\nj für Ja, n für Nein\n")
+        if auswahl == "j":
+            for personen in gespeicherteDaten:
+                print(personen)  # Hier werden alle Elemente in einer Liste ausgegeben
+        elif auswahl == "n":
+            print("Das Programm wird beendet!")
+            exit()
+        else:
+            print("Ungültige Eingabe. Bitte geben Sie j für j, n für Nein ein!")
 
-personenDaten = ["Vorname: ", "Nachname: ", "Straße: ", "PLZ: ", "Ort: "]  # Liste der Datenfelder
+
+# Hier beginnt der Main-Teil
+bezeichnerDaten = ["Vorname: ", "Nachname: ", "Straße: ", "PLZ: ", "Ort: "]  # Liste der Datenfelder
 gespeicherteDaten = []  # Liste zum Speichern aller Datensätze
 
-print("Herzlich Willkommen zur Datenerfassung.")
-print("Bitte geben Sie die Personendaten ein:")
-print()
+print("Herzlich Willkommen zur Datenerfassung.\nBitte geben Sie die Personendaten ein:\n")
 
 # Hauptschleife zur Dateneingabe
 while True:
-    for person in personenDaten:
-        print(person)  # Benutzer zur Eingabe des aktuellen Datenfelds auffordern
-        daten = input()  # Benutzereingabe erfassen
+    personenListe = []
+    for person in bezeichnerDaten:
+        daten = input(person)  # Benutzereingabe erfassen
 
         while daten == "":
-            print("Feld darf nicht leer sein!")
-            print(person)
-            daten = input()
+            daten = input("Feld darf nicht leer sein!\n" + person)
 
-        gespeicherteDaten.append(daten)
+        personenListe.append(daten)
+
+    gespeicherteDaten.append(personenListe.copy())  # Eine Kopie von personenListe wird hinzugefügt
+    personenListe.clear()  # personenListe wird gelöscht.
 
     # Benutzer nach weiteren Dateneingaben fragen
-    print("Wollen Sie weitere Daten eingeben?\nj für Ja, n für Nein")
-    eingabe = input()
+    while True:
+        eingabe = input("Wollen Sie weitere Daten eingeben?\nj für Ja, n für Nein\n")
 
-    if eingabe == "j":
-        continue
-    elif eingabe == "n":
-        ausgabe_daten()
-        break
-    else:
-        print("Falsche Eingabe! Geben Sie j für ja oder n für nein ein")
-        break
-
-
-
-
-
-
-
+        if eingabe == "j":
+            break
+        elif eingabe == "n":
+            ausgabe_daten()
+        else:
+            print("Falsche Eingabe! Geben Sie j für ja oder n für nein ein\n")
