@@ -5,7 +5,7 @@ UNGUELTIGE_EINGABE = "Ungültige Eingabe! Geben Sie folgendes ein! (ja/nein):\n"
 
 
 # Funktion zur Validierung der Eingaben
-def validierung(daten, bezeichner_index, ):
+def validierung(daten, bezeichner_index):
     validierungsregeln = {
         0: r'^[A-Za-zÄÖÜäöüß-]+$',  # Vorname (r' = roher String)
         1: r'^[A-Za-zÄÖÜäöüß-]+$',  # Nachname (^ = Anfang des Strings)
@@ -16,7 +16,11 @@ def validierung(daten, bezeichner_index, ):
 
     regel = validierungsregeln.get(bezeichner_index)  # Abrufen der Validierungsregel
     if regel and not re.match(regel, daten):  # Wenn keine Regel vorhanden ist
-        print(f"Ungültige Eingabe: {bezeichner_daten[bezeichner_index]}")
+        bezeichner = bezeichner_daten[bezeichner_index]
+        if bezeichner_index == 3:
+            print(f"Ungültige Eingabe: {bezeichner}. Bitte geben Sie eine vierstellige Zahl ein.")
+        else:
+            print(f"Ungültige Eingabe für {bezeichner}. Bitte geben Sie nur Buchstaben ein.")
         return False
     return True
 
