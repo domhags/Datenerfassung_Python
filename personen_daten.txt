@@ -1,0 +1,3 @@
+Vorname,Nachname,Straﬂe,PLZ,Ort
+Dominik,Hagspiel,Kornblumenstraﬂe 1,8723,Kobenz
+Birgit,Hagspiel,Kornblumenstraﬂe 1,8723,Kobenz

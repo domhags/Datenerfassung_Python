@@ -1,7 +1,37 @@
 import re  # Modul re für reguläre Ausdrücke
+import os  # Modul os für Dateiverarbeitung
+import csv  # csv zum Speichern im csv Format
 
-bezeichner_daten = ("Vorname", "Nachname", "Straße", "PLZ", "Ort")  # Tulpe da nicht veränderbar
+bezeichner_daten = ("Vorname", "Nachname", "Straße", "PLZ", "Ort")  # Tulpe da nicht veränderbar (Bezeichner)
 UNGUELTIGE_EINGABE = "Ungültige Eingabe! Geben Sie folgendes ein! (ja/nein):\n"  # Fehlermeldung (Konstante)
+DATEI = os.path.join(os.path.dirname(__file__), "personen_daten.txt")  # Konstante zur Datei im selben Verzeichnis
+
+
+# Funktion zum Einlesen aus einer Txt-Datei
+def einlesen():
+    gespeicherte_daten = {}  # Leeres Dictionary erstellen
+    try:
+        with open(DATEI, "r", newline="") as file:  # Datei öffnen im Lese-Modus
+            reader = csv.reader(file)
+            next(reader)  # Überspringt die erste Zeile wegs den Bezeichnern
+            for row in reader:
+                person_id = len(gespeicherte_daten) + 1
+                person = {bezeichner_daten[i]: value for i, value in enumerate(row)}
+                gespeicherte_daten[person_id] = person  # Füge die Person dem Dictionary hinzu
+    except FileNotFoundError:
+        print("Die Datei wurde nicht gefunden oder konnte nicht geöffnet werden.")
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+    return gespeicherte_daten
+
+
+# Funktion zum Schreiben in Datei und Speichern
+def schreiben_und_speichern(gespeicherte_daten):
+    with open(DATEI, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(bezeichner_daten)  # Bezeichner in der ersten Zeile
+        for person in gespeicherte_daten.values():
+            writer.writerow([person.get(key, "") for key in bezeichner_daten])
 
 
 # Funktion zur Validierung der Eingaben
@@ -85,7 +115,7 @@ def filtern(gespeicherte_daten):
         if person[bezeichner] == filterkriterium:
             gefilterte_liste.append(person)
 
-    if gefilterte_liste:  # Überprüfen ob die Liste nicht leer ist
+    if gefilterte_liste:  # Überprüfen, ob die Liste nicht leer ist
         print("\nGefilterte Daten:")
         for person in gefilterte_liste:
             for bezeichner, daten in person.items():
@@ -108,7 +138,8 @@ def ausgabe_daten(gespeicherte_daten):
 # Funktion für weitere Aktionen im Programm
 def abfrage(gespeicherte_daten):
     while True:
-        print("Was möchten Sie tun?\n1. Benutzer ändern\n2. Liste filtern\n3. Benutzer hinzufügen\n")
+        print("Was möchten Sie tun?\n1. Benutzer ändern\n2. Liste filtern\n"
+              "3. Benutzer hinzufügen\n4. Speichern\n5. Alle Datensätze anzeigen\n6. Programm beenden")
 
         auswahl = input("Bitte geben Sie die Nummer der gewünschten Aktion ein: ")
         if auswahl == "1":
@@ -117,6 +148,14 @@ def abfrage(gespeicherte_daten):
             filtern(gespeicherte_daten)
         elif auswahl == "3":
             eingabe_daten(gespeicherte_daten)
+        elif auswahl == "4":
+            schreiben_und_speichern(gespeicherte_daten)
+            print("Datei gespeichert")
+        elif auswahl == "5":
+            ausgabe_daten(gespeicherte_daten)
+        elif auswahl == "6":
+            print("Programm wird beendet")
+            break
         else:
             print(UNGUELTIGE_EINGABE)
 
@@ -158,5 +197,7 @@ def benutzer_aendern(gespeicherte_daten):
 
 # Hier beginnt der Main-Teil
 if __name__ == "__main__":
-    print("Herzlich Willkommen zur Datenerfassung.\nBitte geben Sie die Personendaten ein:\n")
-    eingabe_daten()
+    alle_daten = einlesen()
+
+    print("Herzlich Willkommen zur Datenerfassung.\n")
+    abfrage(alle_daten)
