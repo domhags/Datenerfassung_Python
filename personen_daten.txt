@@ -1,3 +1,6 @@
 Vorname,Nachname,Straﬂe,PLZ,Ort
 Dominik,Hagspiel,Kornblumenstraﬂe 1,8723,Kobenz
 Birgit,Hagspiel,Kornblumenstraﬂe 1,8723,Kobenz
+Martina,Hagspiel,Fischerstraﬂe 124,6500,Landeck
+Dietmar,Krapf,Seckauerstraﬂe 12/6,8720,Knittelfeld
+Gerlinde,Krapf,Seckauerstraﬂe 12/6,8720,Knittelfeld

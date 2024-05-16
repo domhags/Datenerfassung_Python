@@ -2,9 +2,9 @@ import re  # Modul re für reguläre Ausdrücke
 import os  # Modul os für Dateiverarbeitung
 import csv  # csv zum Speichern im csv Format
 
-bezeichner_daten = ("Vorname", "Nachname", "Straße", "PLZ", "Ort")  # Tulpe da nicht veränderbar (Bezeichner)
+bezeichner_daten = ("Vorname", "Nachname", "Straße", "PLZ", "Ort")  # Tuple da nicht veränderbar (Bezeichner)
 UNGUELTIGE_EINGABE = "Ungültige Eingabe! Geben Sie folgendes ein! (ja/nein):\n"  # Fehlermeldung (Konstante)
-DATEI = os.path.join(os.path.dirname(__file__), "personen_daten.txt")  # Konstante zur Datei im selben Verzeichnis
+DATEI = os.path.join(os.path.dirname(__file__), "personen_daten.txt")  # Konstante - Datei im selben Verzeichnis
 
 
 # Funktion zum Einlesen aus einer Txt-Datei
@@ -25,11 +25,11 @@ def einlesen():
     return gespeicherte_daten
 
 
-# Funktion zum Schreiben in Datei und Speichern
+# Funktion zum Schreiben und Speichern in Datei
 def schreiben_und_speichern(gespeicherte_daten):
     with open(DATEI, "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(bezeichner_daten)  # Bezeichner in der ersten Zeile
+        writer.writerow(bezeichner_daten)  # Bezeichner in der ersten Zeile schreiben
         for person in gespeicherte_daten.values():
             writer.writerow([person.get(key, "") for key in bezeichner_daten])
 
@@ -45,7 +45,7 @@ def validierung(daten, bezeichner_index):
     }
 
     regel = validierungsregeln.get(bezeichner_index)  # Abrufen der Validierungsregel
-    if regel and not re.match(regel, daten):  # Wenn keine Regel vorhanden ist
+    if regel and not re.match(regel, daten):  # Überprüfen, ob die Eingabe den Regeln entspricht
         bezeichner = bezeichner_daten[bezeichner_index]
         if bezeichner_index == 3:
             print(f"Ungültige Eingabe: {bezeichner}. Bitte geben Sie eine vierstellige Zahl ein.")
@@ -63,8 +63,7 @@ def eingabe_daten(gespeicherte_daten=None):  # Zuerst None da bei jedem Aufruf D
 
     # Schleife zur Dateneingabe
     while True:
-        # Dictionary für jede einzelne Person erstellen
-        personen_daten = {}
+        personen_daten = {}  # Dictionary für jede einzelne Person erstellen
         for bezeichner in bezeichner_daten:
             while True:
                 eingabe = input(f"Bitte geben Sie {bezeichner} ein: ")  # Benutzereingabe erfassen
@@ -83,8 +82,8 @@ def eingabe_daten(gespeicherte_daten=None):  # Zuerst None da bei jedem Aufruf D
         if not weitere_personen():  # Abfrage für weitere Personeneingabe
             break
 
-    ausgabe_daten(gespeicherte_daten)
-    abfrage(gespeicherte_daten)
+    ausgabe_daten(gespeicherte_daten)  # Ausgabe der eingegebenen Daten
+    abfrage(gespeicherte_daten)  # Weitere Aktionen abfragen
     return gespeicherte_daten
 
 
@@ -130,8 +129,8 @@ def ausgabe_daten(gespeicherte_daten):
     print("Gespeicherte Daten:\n")
     for person_id, person in gespeicherte_daten.items():
         print(f"Person {person_id}")
-        for key, value in person.items():
-            print(f"{key}: {value}")
+        for bezeichner, daten in person.items():
+            print(f"{bezeichner}: {daten}")
         print()
 
 
@@ -139,7 +138,8 @@ def ausgabe_daten(gespeicherte_daten):
 def abfrage(gespeicherte_daten):
     while True:
         print("Was möchten Sie tun?\n1. Benutzer ändern\n2. Liste filtern\n"
-              "3. Benutzer hinzufügen\n4. Speichern\n5. Alle Datensätze anzeigen\n6. Programm beenden")
+              "3. Benutzer hinzufügen\n4. Benutzer löschen\n5. Speichern\n"
+              "6. Alle Datensätze anzeigen\n7. Programm beenden")
 
         auswahl = input("Bitte geben Sie die Nummer der gewünschten Aktion ein: ")
         if auswahl == "1":
@@ -149,12 +149,14 @@ def abfrage(gespeicherte_daten):
         elif auswahl == "3":
             eingabe_daten(gespeicherte_daten)
         elif auswahl == "4":
-            schreiben_und_speichern(gespeicherte_daten)
-            print("Datei gespeichert")
+            benutzer_loeschen(gespeicherte_daten)
         elif auswahl == "5":
-            ausgabe_daten(gespeicherte_daten)
+            schreiben_und_speichern(gespeicherte_daten)
+            print("\nDatei wurde gespeichert\n")
         elif auswahl == "6":
-            print("Programm wird beendet")
+            ausgabe_daten(gespeicherte_daten)
+        elif auswahl == "7":
+            print("Programm wird beendet!")
             break
         else:
             print(UNGUELTIGE_EINGABE)
@@ -195,9 +197,31 @@ def benutzer_aendern(gespeicherte_daten):
         print("Ungültige ID.")  # Fehlermeldung für ungültige Benutzer-ID
 
 
+# Funktion zum Löschen eines Benutzers
+def benutzer_loeschen(gespeicherte_daten):
+    print("Liste der vorhandenen Benutzer:\n")
+
+    for person_id, person in gespeicherte_daten.items():
+        print(f"ID: {person_id}")
+
+        for bezeichner, daten in person.items():
+            print(f"{bezeichner}: {daten}")
+        print()
+
+    # ID abfragen
+    id_zum_loeschen = int(input("Bitte geben Sie die ID des zu löschenden Benutzers ein: "))
+    # Überprüfen, ob ID vorhanden ist
+    if id_zum_loeschen in gespeicherte_daten:
+        del gespeicherte_daten[id_zum_loeschen]
+        print(f"Benutzer mit ID {id_zum_loeschen} wurde gelöscht.")
+        ausgabe_daten(gespeicherte_daten)
+    else:
+        print("Ungültige ID.")  # Fehlermeldung für ungültige Benutzer-ID
+
+
 # Hier beginnt der Main-Teil
 if __name__ == "__main__":
-    alle_daten = einlesen()
+    alle_daten = einlesen()  # Einlesen der Datei. Wenn keine vorhanden wird sie erstellt
 
     print("Herzlich Willkommen zur Datenerfassung.\n")
-    abfrage(alle_daten)
+    abfrage(alle_daten)  # Abfrage welche Aktion ausgeführt werden soll (Start)
