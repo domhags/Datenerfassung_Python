@@ -1,3 +1,1 @@
 Dominik;Hagspiel;Kornblumenstraße 1;8723;Kobenz
-Birgit;Hagspiel;Kornblumenstraße 1;8723;Kobenz
-Max;Mustermann;Musterstraße 1;9999;Musterhausen

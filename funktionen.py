@@ -1,7 +1,6 @@
 import tkinter as tk  # Importiert das Tkinter-Modul für die GUI-Erstellung
-from tkinter import messagebox  # Importiert das Messageboxmodul
+from tkinter import messagebox  # Importiert das Messagebox
 import os  # Importiert das os-Modul zur Arbeit mit Dateipfaden
-import re  # Importiert das re-Modul für RegEx
 
 # Name der Datei, in der die Personendaten gespeichert werden
 DATEI_NAME = "personen_daten.txt"
@@ -15,37 +14,11 @@ def datei_pfad_erstellen():
     return os.path.join(os.getcwd(), DATEI_NAME)  # Gibt den vollständigen Pfad zur Datei zurück
 
 
-# Validierungsfunktion
-def validierung(daten, bezeichner_index):
-    validierungsregeln = {
-        0: r'^[A-Za-zÄÖÜäöüß-]+$',  # Vorname
-        1: r'^[A-Za-zÄÖÜäöüß-]+$',  # Nachname
-        2: r'^[A-Za-zÄÖÜäöüß0-9\s.,/-]+$',  # Straße
-        3: r'^\d{4}$',  # PLZ
-        4: r'^[A-Za-zÄÖÜäöüß\s]+$',  # Ort
-    }
-
-    regel = validierungsregeln.get(bezeichner_index)
-    if regel and not re.match(regel, daten):
-        bezeichner = BEZEICHNUNGEN[bezeichner_index]
-        if bezeichner_index == 3:
-            messagebox.showerror("Ungültige Eingabe", f"Ungültige Eingabe: {bezeichner}."
-                                                      f"Bitte geben Sie eine vierstellige Zahl ein.")
-        else:
-            messagebox.showerror("Ungültige Eingabe", f"Ungültige Eingabe für {bezeichner}."
-                                                      f"Bitte geben Sie nur Buchstaben ein.")
-        return False
-    return True
-
-
-# Funktion zum Hinzufügen von Einträgen bei Drücken der Enter-Taste
-def eintrag_hinzufuegen_enter(tree, *eingaben):
-    werte = sammle_eingabewerte(*eingaben)  # Sammelt die Werte aus den Eingabefeldern
-    for index, wert in enumerate(*eingaben):
-        if not validierung(wert, index):
-            return
-    tree.insert("", "end", values=werte)  # Fügt die Werte als neuen Eintrag in das Treeview ein
-    loesche_eingaben(*eingaben)  # Löscht die Eingabefelder
+# # Funktion zum Hinzufügen von Einträgen bei Drücken der Enter-Taste
+# def eintrag_hinzufuegen_enter(tree, *eingaben):
+#     werte = sammle_eingabewerte(*eingaben)  # Sammelt die Werte aus den Eingabefeldern
+#     tree.insert("", "end", values=werte) # Fügt die Werte als neuen Eintrag in das Treeview ein
+#     loesche_eingaben(*eingaben)  # Löscht die Eingabefelder
 
 
 # Funktion zum Löschen von Einträgen in den Eingabefeldern
@@ -57,7 +30,7 @@ def loesche_eingaben(*eingaben):
 # Funktion zum Ausgeben der Liste aus dem Treeview
 def liste_ausgeben(tree):
     # Gibt die Werte aller Einträge im Treeview zurück
-    return [tree.item(element)["values"] for element in tree.get_children()]
+    return [tree.item(element)["values"] for element in tree.get_children()]  # List-Comprehension über alle Elemente
 
 
 # Funktion zum Speichern der Liste in eine Datei
@@ -95,6 +68,9 @@ def markieren_vn(eingabe):
 # Funktion zum Hinzufügen eines Eintrags
 def eintrag_hinzufuegen(tree, *eingaben):
     werte = sammle_eingabewerte(*eingaben)  # Sammelt die Werte aus den Eingabefeldern
+    if not all(werte):
+        tk.messagebox.showerror("Fehler", "Bitte füllen Sie alle Felder aus.")
+        return
     tree.insert("", "end", values=werte)  # Fügt die Werte als neuen Eintrag in das Treeview ein
     loesche_eingaben(*eingaben)  # Löscht die Eingabefelder
     letzte_reihe_fokussieren(tree)  # Fokussiert die letzte Reihe im Treeview
@@ -123,9 +99,7 @@ def eintrag_bearbeiten(tree, root):
         bearbeiten_fenster.geometry("300x200")  # Setzt die Größe des Fensters
         eingaben = []
 
-        bezeichnungen = ["Vorname", "Nachname", "Straße", "PLZ", "Ort"]  # Bezeichnungen der Felder
-
-        for idx, (bezeichnung, wert) in enumerate(zip(bezeichnungen, werte)):
+        for idx, (bezeichnung, wert) in enumerate(zip(BEZEICHNUNGEN, werte)):
             tk.Label(bearbeiten_fenster, text=f"{bezeichnung}:").grid(row=idx, column=0)  # Erstellt ein Label
             eingabe = tk.Entry(bearbeiten_fenster)  # Erstellt ein Eingabefeld
             eingabe.grid(row=idx, column=1)  # Platziert das Eingabefeld
@@ -138,14 +112,16 @@ def eintrag_bearbeiten(tree, root):
             text="Änderungen speichern",
             command=lambda: aenderungen_speichern(tree, ausgewaehlte_eintraege, eingaben, bearbeiten_fenster))
         speichern_button.grid(row=len(werte), columnspan=2)  # Platziert den Button
+    else:
+        tk.messagebox.showerror("Fehler", "Es wurde kein Eintrag zum Bearbeiten ausgewählt")
 
 
 # Funktion zum Speichern der Änderungen
 def aenderungen_speichern(tree, ausgewaehlte_eintraege, eingaben, fenster):
     neue_werte = [eingabe.get() for eingabe in eingaben]  # Holt die neuen Werte aus den Eingabefeldern
-    for index, wert in enumerate(neue_werte):
-        if not validierung(wert, index):
-            return
+    if not all(neue_werte):
+        tk.messagebox.showerror("Fehler", "Bitte füllen Sie alle Felder aus.")
+        return
     tree.item(ausgewaehlte_eintraege[0], values=neue_werte)  # Aktualisiert den Eintrag im Treeview
     fenster.destroy()  # Schließt das Bearbeitungsfenster
 
@@ -153,3 +129,13 @@ def aenderungen_speichern(tree, ausgewaehlte_eintraege, eingaben, fenster):
 # Funktion zum Sammeln der Werte der Eingabefelder
 def sammle_eingabewerte(*eingaben):
     return [eingabe.get() for eingabe in eingaben]  # Gibt die Werte der Eingabefelder als Liste zurück
+
+
+# Funktion für einen Benutzer gezielt löschen
+def benutzer_loeschen(tree):
+    # Überprüfen, ob ein Eintrag im Treeview markiert ist
+    selected_item = tree.focus()
+    if selected_item:
+        tree.delete(selected_item)  # Löscht den markierten Eintrag im Treeview
+    else:
+        messagebox.showerror("Fehler", "Es wurde kein Eintrag zum Löschen ausgewählt.")
